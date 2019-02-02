@@ -1,0 +1,30 @@
+---
+title: "DAPT 622 Assignment 2"
+author: "Daniel Erb"
+date: "February 1, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load libraries and read data}
+library(data.table)
+
+# file path for candy data
+candy.file <- "G:/My Drive/vcu/Spring 2019/Statistics/Assignments/Assignment 2/DAPT_622_Assignment_2/data/CandyBars.txt"
+
+# 75 observations, not 69 like the read.table showed...
+cd <- read.csv(candy.file)
+
+# file path for demographics data
+demo.file <- "G:/My Drive/vcu/Spring 2019/Statistics/Assignments/Assignment 2/DAPT_622_Assignment_2/data/Demographics.txt"
+
+# 440 observations for this data set
+dd <- read.csv(demo.file)
+
+rm(candy.file)
+rm(demo.file)
+
+```
