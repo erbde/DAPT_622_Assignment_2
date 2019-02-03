@@ -191,40 +191,77 @@ $(document).ready(function () {
 </div>
 
 
-<pre class="r"><code>library(data.table)
-
+<div id="setup" class="section level1">
+<h1>Setup</h1>
+<pre class="r"><code>library(knitr)
+library(data.table)
+setwd(paste(&quot;G:/My Drive/vcu/Spring 2019/Statistics/Assignments&quot;,
+                    &quot;/Assignment 2/DAPT_622_Assignment_2/&quot;,
+                    sep = &quot;&quot;))
 # file path for candy data
-candy.file &lt;- &quot;G:/My Drive/vcu/Spring 2019/Statistics/Assignments/Assignment 2/DAPT_622_Assignment_2/data/CandyBars.txt&quot;
+candy.file &lt;- &quot;data/CandyBars.txt&quot;
 
 # 75 observations, not 69 like the read.table showed...
 cd &lt;- read.csv(candy.file)
 
 # file path for demographics data
-demo.file &lt;- &quot;G:/My Drive/vcu/Spring 2019/Statistics/Assignments/Assignment 2/DAPT_622_Assignment_2/data/Demographics.txt&quot;
+demo.file &lt;- &quot;data/Demographics.txt&quot;
 
 # 440 observations for this data set
-dd &lt;- read.csv(demo.file)
-
-rm(candy.file)
-rm(demo.file)</code></pre>
-<p>Part I. Consider the candy bar data again. A study was conducted to investigate the nutrition content of a variety of candy brands and products. The data set includes the following variables (most of which should be self-explanatory):</p>
-<p>Perform a Factor Analysis on this data by carrying out the following steps:</p>
-<ol style="list-style-type: decimal">
-<li><p>How many factors should be retained (based on eigenvalues and a Scree plot)? You may use any “Factoring method” or “Rotation method” you wish. The defaults, of course, are fine.</p></li>
-<li><p>Provide the rotated factor loadings matrix. You should notice that (as compared with Principal Component Analysis) fewer variables load onto each factor. Interpret (as best as possible) your factors. Can you give an overall name to each factor?</p></li>
-<li><p>Plot factor scores for your first two factors. Color the points by Brand. Are there any natural groupings of observations?</p></li>
-</ol>
+dd &lt;- read.csv(demo.file)</code></pre>
 <hr />
-<p>Part II. Consider the demographics data (Demographics.jmp or Demographics.txt). Each of the 440 rows contains demographic information on particular localities in the United States. The following is a brief description of the variables.</p>
-<ol style="list-style-type: decimal">
-<li>Perform a linear discriminant analysis using the highlighted variables for discriminating the variable Pop_Size_Group.</li>
-</ol>
-<p>Pct_Age18_to_34 % = (# aged 18-34) / (population) Pct_65_or_over % = (# aged 65 &amp; up) / (population) Num_physicians Active Nonfederal Physicians Num_hospital_beds Hospital Beds, Cribs, Bassinets Num_serious_crimes Serious Crimes Pct_High_Sch_grads % = (# 12 yrs school) / (# 25 &amp; over) Pct_Bachelors % = (# bachelor’s) / (# 25 &amp; over) Pct_below_poverty % = (# &lt; poverty) / (population) Pct_unemployed % = (# unemployed) / (population) Per_cap_1990income Per Capital Income Total_personal_income Total Personal Income</p>
-<ol start="2" style="list-style-type: decimal">
-<li><p>Show a plot of the two discriminant functions with points colored by Pop_Size_Group. Do both discriminant functions appear necessary to describe group separation?</p></li>
-<li><p>Give the scoring coefficients for the two discriminant functions. Which variables appear most important for describing group separation?</p></li>
-<li><p>Provide a classification matrix and the percent of observations misclassified.</p></li>
-</ol>
+</div>
+<div id="part-i" class="section level1">
+<h1>Part I</h1>
+<p>Consider the candy bar data again. A study was conducted to investigate the nutrition content of a variety of candy brands and products. The data set includes the following variables (most of which should be self-explanatory):</p>
+<p>Perform a Factor Analysis on this data by carrying out the following steps:</p>
+<div id="question-1" class="section level2">
+<h2>Question 1</h2>
+<p>How many factors should be retained (based on eigenvalues and a Scree plot)? You may use any “Factoring method” or “Rotation method” you wish. The defaults, of course, are fine.</p>
+</div>
+<div id="question-2" class="section level2">
+<h2>Question 2</h2>
+<p>Provide the rotated factor loadings matrix. You should notice that (as compared with Principal Component Analysis) fewer variables load onto each factor. Interpret (as best as possible) your factors. Can you give an overall name to each factor?</p>
+</div>
+<div id="question-3" class="section level2">
+<h2>Question 3</h2>
+<p>Plot factor scores for your first two factors. Color the points by Brand. Are there any natural groupings of observations?</p>
+<hr />
+</div>
+</div>
+<div id="part-ii" class="section level1">
+<h1>Part II</h1>
+<p>Consider the demographics data (Demographics.jmp or Demographics.txt). Each of the 440 rows contains demographic information on particular localities in the United States. The following is a brief description of the variables.</p>
+<div id="question-1-1" class="section level2">
+<h2>Question 1</h2>
+<p>Perform a linear discriminant analysis using the highlighted variables for discriminating the variable Pop_Size_Group.</p>
+<ul>
+<li>Pct_Age18_to_34</li>
+<li>Pct_65_or_over</li>
+<li>Num_physicians</li>
+<li>Num_hospital_beds</li>
+<li>Num_serious_crimes</li>
+<li>Pct_High_Sch_grads</li>
+<li>Pct_Bachelors</li>
+<li>Pct_below_poverty</li>
+<li>Pct_unemployed</li>
+<li>Per_cap_1990income</li>
+<li>Total_personal_income</li>
+</ul>
+</div>
+<div id="question-2-1" class="section level2">
+<h2>Question 2</h2>
+<p>Show a plot of the two discriminant functions with points colored by Pop_Size_Group. Do both discriminant functions appear necessary to describe group separation?</p>
+</div>
+<div id="question-3-1" class="section level2">
+<h2>Question 3</h2>
+<p>Give the scoring coefficients for the two discriminant functions. Which variables appear most important for describing group separation?</p>
+</div>
+<div id="question-4" class="section level2">
+<h2>Question 4</h2>
+<p>Provide a classification matrix and the percent of observations misclassified.</p>
+</div>
+</div>
 
 
 

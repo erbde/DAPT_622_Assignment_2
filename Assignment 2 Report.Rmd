@@ -2,26 +2,42 @@
 title: "DAPT 622 Assignment 2"
 author: "Daniel Erb"
 date: "February 1, 2019"
-output: 
-  pdf_document:
-   toc: TRUE
+output:
+  pdf_document: 
+    toc: TRUE
+    latex_engine: xelatex
+mainfont: Calibri Light
+geometry: margin = 1in
+documentclass: report
+header-includes: |
+    \usepackage{fancyhdr}
+    \usepackage{lastpage}
+    \pagestyle{fancy}
+    \fancyhead[CO,CE]{DAPT 622 Assignment 2}
+    \fancyfoot[CO,CE]{Group 5}
+    \fancyfoot[LE,RO]{\thepage\ of \pageref{LastPage}}
+    \renewcommand{\chaptername}{}
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Setup
-
-```{r load libraries and read data, }
+```{r load libraries and read data}
+# this code chunk loads the libraries used as well as reading in the necessary data
 library(knitr)
 library(data.table)
+library(kableExtra)
+library(dplyr)
+#library(corrplot)
+#library(stats)
+#library(factoextra)
 setwd(paste("G:/My Drive/vcu/Spring 2019/Statistics/Assignments",
                     "/Assignment 2/DAPT_622_Assignment_2/",
                     sep = ""))
 # file path for candy data
 candy.file <- "data/CandyBars.txt"
-
+ 
 # 75 observations, not 69 like the read.table showed...
 cd <- read.csv(candy.file)
 
@@ -32,23 +48,81 @@ demo.file <- "data/Demographics.txt"
 dd <- read.csv(demo.file)
 ```
 
----
+```{r, include = FALSE}
+# found the file.choose selection when researching how to perform factor analysis in r. 
+# This would be very handy for class and for work
+```
 
 # Part I
 Consider the candy bar data again.  A study was conducted to investigate the nutrition content of a variety of candy brands and products.  The data set includes the following variables (most of which should be self-explanatory):
 
 Perform a Factor Analysis on this data by carrying out the following steps:
 
+**Factor analysis requires you choose the number of factors that you are looking for. You can't fit the model until you decide how many factors you want to retain.**
+
 ## Question 1
 How many factors should be retained (based on eigenvalues and a Scree plot)? You may use any “Factoring method” or “Rotation method” you wish. The defaults, of course, are fine. 
+
+```{r, pca for factor choice}
+# perform principal component analysis first to allow for analysis
+# of the eigenvalues and the scree plot
+
+# remove non-continuous data
+cd_sub <- cd[,c("Oz.pkg","Calories","Total.fat.g"
+                  ,"Saturated.fat.g","Cholesterol.g"
+                  ,"Sodium.mg","Carbohydrate.g"
+                  ,"Dietary.fiber.g","Sugars.g"
+                  ,"Protein.g","Vitamin.A..RDI"
+                  ,"Vitamin.C..RDI","Calcium..RDI"
+                  ,"Iron..RDI")]
+
+cd_sub <- cd_sub %>% 
+  rename(oz = "Oz.pkg",
+         kcal = "Calories",
+         tot.fat = "Total.fat.g",
+         sat.fat = "Saturated.fat.g",
+         cholest = "Cholesterol.g",
+         sodium = "Sodium.mg",
+         carb = "Carbohydrate.g",
+         diet.fib = "Dietary.fiber.g",
+         sugar = "Sugars.g",
+         protein = "Protein.g",
+         vit.a = "Vitamin.A..RDI",
+         vit.c = "Vitamin.C..RDI",
+         calcium = "Calcium..RDI",
+         iron = "Iron..RDI")
+
+#Get variance-covariance matrix
+covmat <- cov(cd_sub)
+kable(covmat,caption = "Variance/Covariance Matrix for Candy Data", digits = 2) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+                full_width = TRUE, font_size = 8)
+
+#Get correlation matrix
+corrmat <- cor(cd_sub)
+kable(corrmat,caption = "Correlation Matrix for Candy Data", digits = 3) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+                full_width = TRUE, font_size = 8)
+
+# calculate the eigenvalues and vectors and display the values
+ev <- eigen(corrmat)
+ev$values
+ev$vectors
+
+# perform pca
+pca <- prcomp(cd_sub, scale = TRUE)
+summary(pca)
+
+# create a screeplot
+screeplot(pca, npcs = 14, type = "lines")
+
+```
 
 ## Question 2
 Provide the rotated factor loadings matrix. You should notice that (as compared with Principal Component Analysis) fewer variables load onto each factor. Interpret (as best as possible) your factors. Can you give an overall name to each factor?
 
 ## Question 3
 Plot factor scores for your first two factors. Color the points by Brand. Are there any natural groupings of observations? 
-
----
 
 # Part II
 Consider the demographics data (Demographics.jmp or Demographics.txt).  Each of the 440 rows contains demographic information on particular localities in the United States.  The following is a brief description of the variables. 
