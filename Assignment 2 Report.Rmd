@@ -2,36 +2,23 @@
 title: "DAPT 622 Assignment 2"
 author: "Daniel Erb"
 date: "February 1, 2019"
-output:
-  pdf_document: 
-    toc: TRUE
-    latex_engine: xelatex
-mainfont: Calibri Light
-geometry: margin = 1in
-documentclass: report
-header-includes: |
-    \usepackage{fancyhdr}
-    \usepackage{lastpage}
-    \pagestyle{fancy}
-    \fancyhead[CO,CE]{DAPT 622 Assignment 2}
-    \fancyfoot[CO,CE]{Group 5}
-    \fancyfoot[LE,RO]{\thepage\ of \pageref{LastPage}}
-    \renewcommand{\chaptername}{}
+output:  html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r load libraries and read data}
+```{r load libraries and read data,message=FALSE}
 # this code chunk loads the libraries used as well as reading in the necessary data
 library(knitr)
 library(data.table)
 library(kableExtra)
 library(dplyr)
-#library(corrplot)
-#library(stats)
-#library(factoextra)
+library(ggplot2)
+library(MASS)
+library(klaR)
+# set the working directory
 setwd(paste("G:/My Drive/vcu/Spring 2019/Statistics/Assignments",
                     "/Assignment 2/DAPT_622_Assignment_2/",
                     sep = ""))
@@ -48,7 +35,7 @@ demo.file <- "data/Demographics.txt"
 dd <- read.csv(demo.file)
 ```
 
-```{r, include = FALSE}
+```{r, include = FALSE, message=FALSE}
 # found the file.choose selection when researching how to perform factor analysis in r. 
 # This would be very handy for class and for work
 ```
@@ -63,7 +50,7 @@ Perform a Factor Analysis on this data by carrying out the following steps:
 ## Question 1
 How many factors should be retained (based on eigenvalues and a Scree plot)? You may use any “Factoring method” or “Rotation method” you wish. The defaults, of course, are fine. 
 
-```{r, pca for factor choice}
+```{r, pca and factor analysis,message=FALSE,fig.align='center'}
 # perform principal component analysis first to allow for analysis
 # of the eigenvalues and the scree plot
 
@@ -104,10 +91,6 @@ kable(corrmat,caption = "Correlation Matrix for Candy Data", digits = 3) %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"),
                 full_width = TRUE, font_size = 8)
 
-# calculate the eigenvalues and vectors and display the values
-ev <- eigen(corrmat)
-ev$values
-ev$vectors
 
 # perform pca
 pca <- prcomp(cd_sub, scale = TRUE)
@@ -116,19 +99,69 @@ summary(pca)
 # create a screeplot
 screeplot(pca, npcs = 14, type = "lines")
 
+
+cd_fa <- factanal(cd_sub, factors = 3, rotation = "varimax", scores = c("regression"))
+
 ```
+
+As we have seen in our previous assignment, approximately 60% of the variability in the data can be explained through the use of 3 principal components. This would suggest that we might target 3 final factors when performing our factor analysis. If greater explanatory power is necessary, 5 factors would help explain about 80% of the variability in the data. For this particular analysis, 3 factos will be used with the varimax rotation.
+
+
+The results of the factor analysis 
 
 ## Question 2
 Provide the rotated factor loadings matrix. You should notice that (as compared with Principal Component Analysis) fewer variables load onto each factor. Interpret (as best as possible) your factors. Can you give an overall name to each factor?
 
+```{r, display the factor loading matrix,message=FALSE,fig.align='center'}
+
+cd_fa$loadings
+pca$rotation
+
+```
+
+When compared to the loadings matrices between the factor analysis and the principal component analysis, we see that the various factors have fewer included variables than the principal components. For example, the first factor  does not include any loading for ounces, cholesterol, carbohydrates, or vitamin A, where the first principal component includes all variables within the data set. This does not, however, take into account that several of the loadings in the principal component analysis are very close to 0 in magnitude. Given the relatively high loadings for calories, total fat and protein, the first factor could be thought of as protein and fat content, since both may contribute to calorie count. The second factor has high positive loadings for saturated fat, total fat. This factor could be thought of as fat content. The third factor contains high loadings for calories, carbohydrates, and sugars. This factor might be thought of as carbohydrates since sugars are a type of carbohydrate and carbohydrates contribute to the overall calorie count.
+
+
 ## Question 3
 Plot factor scores for your first two factors. Color the points by Brand. Are there any natural groupings of observations? 
+
+
+```{r, plot of factor scores,message=FALSE,fig.align='center'}
+
+ggplot(data=as.data.frame(cd_fa$scores), aes(x=Factor1, y=Factor2,color = cd$Brand)) +
+  geom_hline(yintercept=0) + 
+  geom_vline(xintercept=0) +
+  geom_point() +
+  theme_minimal()
+
+```
+
+There do not seem to be any extremely strong groupings within the data set. There are three candy bars that Hershey produces, which seem to be similar in both factors. There are also two candy bars produced by Weider that are similiar in both factors. Most of the data is fairly well scattered, with no other natural groupings based on brand.
 
 # Part II
 Consider the demographics data (Demographics.jmp or Demographics.txt).  Each of the 440 rows contains demographic information on particular localities in the United States.  The following is a brief description of the variables. 
 
 ## Question 1
 Perform a linear discriminant analysis using the highlighted variables for discriminating the variable Pop_Size_Group.
+
+```{r variance/covariance matrix for demographics data}
+
+names(dd)
+
+dd_sub <- dd %>%
+  dplyr::select(Pop_Size_Group,Pct_Age18_to_34,Pct_65_or_over,Num_physicians,Num_hospital_beds,
+         Num_serious_crimes,Pct_High_Sch_grads,Pct_Bachelors,Pct_below_poverty,
+         Pct_unemployed,Per_cap_income,Total_personal_income)
+
+lin.da <- lda(Pop_Size_Group ~ ., data = dd_sub)
+
+discrim.values <- predict(lin.da,dd_sub)
+
+ct <- table(dd_sub$Pop_Size_Group,discrim.values$class)
+
+sum(diag(prop.table(ct)))
+
+```
 
 * Pct_Age18_to_34
 * Pct_65_or_over
@@ -145,8 +178,33 @@ Perform a linear discriminant analysis using the highlighted variables for discr
 ## Question 2
 Show a plot of the two discriminant functions with points colored by Pop_Size_Group. Do both discriminant functions appear necessary to describe group separation? 
 
+```{r plot by Pop_Size_Group}
+
+t.discrim.values <- as.data.frame(cbind(as.character(discrim.values$class),discrim.values$x)) %>% 
+  rename(Pop_Size_Group = V1)
+
+
+plot(lin.da, col = as.integer(dd_sub$Pop_Size_Group))
+
+
+ggplot(t.discrim.values, aes(x = as.numeric(LD1),y = as.numeric(LD2), color = Pop_Size_Group)) + 
+  geom_point()
+
+```
+
+The plot of the two discriminant functions shows that the first canonical variable provides much more explanation than the second, which only seems to slightly differentiate medium and small population size groups.
+
 ## Question 3
 Give the scoring coefficients for the two discriminant functions. Which variables appear most important for describing group separation? 
+
+
+The scoring coeficients are as follows. This would suggest that number of hospital beds, number of physicians, percent below the poverty line, per capita income, and total personal income seem to play the largest role in separating the groups for the first canonical variable. Number of physicians and number of hospital beds continue to be important in the second canonical variable, which also shows some separation for percent between 18 and 34 and percent bachelors. It should be noted that canonical variable 2 only explains about 5 percent of the variation, so any attributes with relatively high scores, still may not strongly differentiate the groups.
+
+Pct_Age18_to_34	Pct_65_or_over	Num_physicians	Num_hospital_beds	Num_serious_crimes	Pct_High_Sch_grads	Pct_Bachelors	Pct_below_poverty	Pct_unemployed	Per_cap_income Total_personal_income
+Canon1	0.0133863	-0.0044	-0.000517	0.0005251	-1.815e-6	0.0304966	0.0138569	0.0857091	0.0850882	0.0001902	5.3049e-5
+Canon2	-0.133209	0.0316805	-0.001238	0.0008962	-2.202e-6	0.031169	0.1558181	-0.006776	0.0129737	-7.674e-5	-9.383e-6
+
+
 
 ## Question 4
 Provide a classification matrix and the percent of observations misclassified. 
